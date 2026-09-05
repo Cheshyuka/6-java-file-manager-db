@@ -1,8 +1,9 @@
 package com.example.filemanager.servlet;
 
 
+import com.example.filemanager.dbService.DBService;
+import com.example.filemanager.dbService.dataSets.UsersDataSet;
 import com.example.filemanager.model.UserProfile;
-import com.example.filemanager.service.AccountService;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -39,19 +40,29 @@ public class LoginServlet extends BaseServlet {
         }
 
         login = login.toLowerCase();
-        AccountService accountService = (AccountService) req.getServletContext()
-                .getAttribute("accountService");
-        UserProfile user = accountService.getUserByLogin(login);
+        DBService dbService = getDBService();
 
-        if (user == null || !user.getPassword().equals(password)) {
-            showError("Неверный логин или пароль", req, resp);
-            return;
+        try {
+            UsersDataSet userData = dbService.getUserByLogin(login);
+
+            if (userData == null || !userData.getPassword().equals(password)) {
+                showError("Неверный логин или пароль", req, resp);
+                return;
+            }
+
+            UserProfile user = new UserProfile(
+                    userData.getLogin(),
+                    userData.getPassword(),
+                    userData.getEmail());
+
+            HttpSession session = req.getSession();
+            session.setAttribute("user", user);
+
+            resp.sendRedirect(req.getContextPath() + "/fileList");
+
+        } catch (Exception e) {
+            showError("Ошибка сервера", req, resp);
         }
-
-        HttpSession session = req.getSession();
-        session.setAttribute("user", user);
-
-        resp.sendRedirect(req.getContextPath() + "/fileList");
     }
 
     private void showError(String message, HttpServletRequest req, HttpServletResponse resp)

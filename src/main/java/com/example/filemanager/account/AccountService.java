@@ -1,10 +1,6 @@
-package com.example.filemanager.service;
+package com.example.filemanager.account;
 
 import com.example.filemanager.model.UserProfile;
-
-import java.io.*;
-import java.nio.file.*;
-import java.util.*;
 
 import java.util.HashMap;
 import java.util.Map;
