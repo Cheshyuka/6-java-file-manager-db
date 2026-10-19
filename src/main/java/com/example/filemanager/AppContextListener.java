@@ -1,5 +1,6 @@
 package com.example.filemanager;
 
+import com.example.filemanager.account.AccountService;
 import com.example.filemanager.dbService.DBService;
 
 import javax.servlet.ServletContextEvent;
@@ -10,16 +11,20 @@ public class AppContextListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         DBService dbService = new DBService();
-        sce.getServletContext().setAttribute("dbService", dbService);
-        System.out.println("DBService initialized");
+        dbService.printConnectInfo();
+
+        AccountService accountService = new AccountService(dbService);
+        sce.getServletContext().setAttribute("accountService", accountService);
+        System.out.println("AccountService initialized with Hibernate");
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        DBService dbService = (DBService) sce.getServletContext().getAttribute("dbService");
-        if (dbService != null) {
-            dbService.close();
+        AccountService accountService = (AccountService) sce.getServletContext()
+                .getAttribute("accountService");
+        if (accountService != null) {
+            accountService.close();
         }
-        System.out.println("DBService closed");
+        System.out.println("AccountService closed");
     }
 }

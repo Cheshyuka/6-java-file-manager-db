@@ -1,7 +1,7 @@
 package com.example.filemanager.servlet;
 
+import com.example.filemanager.account.AccountService;
 import com.example.filemanager.model.UserProfile;
-import com.example.filemanager.dbService.DBService;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -42,24 +42,21 @@ public class RegisterServlet extends BaseServlet {
         }
 
         login = login.toLowerCase();
-        DBService dbService = getDBService();
+        AccountService accountService = (AccountService) req.getServletContext()
+                .getAttribute("accountService");
 
-        try {
-            if (dbService.getUserByLogin(login) != null) {
-                showError("Такой пользователь уже зарегистрирован", req, resp);
-                return;
-            }
-
-            createUserFolder(login);
-            dbService.addUser(login, password, email);
-
-            UserProfile user = new UserProfile(login, password, email);
-            req.getSession().setAttribute("user", user);
-            resp.sendRedirect(req.getContextPath() + "/fileList");
-
-        } catch (Exception e) {
-            showError("Ошибка регистрации", req, resp);
+        if (accountService.getUserByLogin(login) != null) {
+            showError("Такой пользователь уже зарегистрирован", req, resp);
+            return;
         }
+
+        createUserFolder(login);
+
+        UserProfile user = new UserProfile(login, password, email);
+        accountService.addNewUser(user);
+
+        req.getSession().setAttribute("user", user);
+        resp.sendRedirect(req.getContextPath() + "/fileList");
     }
 
     private String validateInput(String login, String password, String email) {

@@ -1,6 +1,5 @@
 package com.example.filemanager.servlet;
 
-import com.example.filemanager.dbService.DBService;
 import com.example.filemanager.model.UserProfile;
 
 import javax.servlet.http.HttpServlet;
@@ -20,9 +19,5 @@ public class BaseServlet extends HttpServlet {
 
     protected String getBasePath() {
         return getServletContext().getInitParameter("explorerBasePath");
-    }
-
-    protected DBService getDBService() {
-        return (DBService) getServletContext().getAttribute("dbService");
     }
 }
